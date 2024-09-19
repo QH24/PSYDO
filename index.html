@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PSYDO</title>
+    <style>
+        /* General Body Styling */
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #fafafa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            color: #262626;
+        }
+
+        /* Header Styling */
+        header {
+            background-color: white;
+            border-bottom: 1px solid #dbdbdb;
+            color: black;
+            text-align: center;
+            padding: 15px 0;
+            font-size: 1.8em;
+            font-weight: bold;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            z-index: 1000;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 240px;
+            background-color: black;
+            color: white;
+            position: fixed;
+            height: 100%;
+            padding-top: 80px;
+        }
+        .sidebar a {
+            display: block;
+            color: white;
+            padding: 15px;
+            text-decoration: none;
+            font-size: 1.1em;
+        }
+        .sidebar a:hover {
+            background-color: #333;
+        }
+
+        /* Main Content Styling */
+        .container {
+            width: 60%;
+            margin: 80px auto 0 auto;
+            padding-left: 260px; /* Adjust for the sidebar */
+        }
+
+        .post-box {
+            background-color: white;
+            padding: 20px;
+            border: 1px solid #dbdbdb;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .post-box textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            border: 1px solid #dbdbdb;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            resize: none;
+        }
+
+        .post-box input[type="file"] {
+            margin-bottom: 10px;
+            color: black;
+            font-size: 1em;
+        }
+
+        .post-box button {
+            background-color: black;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.1em;
+        }
+
+        .post-box button:hover {
+            background-color: #333;
+        }
+
+        .posts {
+            background-color: #fafafa;
+            padding: 15px;
+        }
+
+        .post {
+            border: 1px solid #dbdbdb;
+            background-color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .post-id {
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        .post-content {
+            font-size: 1.2em;
+            margin: 10px 0;
+        }
+
+        .post-image {
+            max-width: 100%;
+            margin-top: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        /* For Smaller Screens */
+        @media screen and (max-width: 768px) {
+            .container {
+                width: 100%;
+                padding-left: 0;
+            }
+
+            .sidebar {
+                width: 200px;
+            }
+
+            .post-box {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+    <a href="#">Profile</a>
+    <a href="#">Search</a>
+    <a href="#">Log Out</a>
+</div>
+
+<!-- Main Content -->
+<header>PSYDO</header>
+
+<div class="container">
+    <!-- Post Box -->
+    <div class="post-box">
+        <textarea id="postContent" placeholder="What's on your mind?"></textarea>
+        <input type="file" id="postImage" accept="image/*">
+        <button onclick="submitPost()">Post</button>
+    </div>
+
+    <!-- Posts -->
+    <div class="posts" id="postsContainer">
+        <!-- All user posts will be displayed here -->
+    </div>
+</div>
+
+<script>
+    // JavaScript for generating random user IDs and posting with image upload
+    const postsContainer = document.getElementById('postsContainer');
+
+    function generateUserId() {
+        const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let userId = '';
+        for (let i = 0; i < 8; i++) {
+            userId += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return userId;
+    }
+
+    function submitPost() {
+        const postContent = document.getElementById('postContent').value;
+        const postImage = document.getElementById('postImage').files[0];
+        
+        if (postContent.trim() === '' && !postImage) {
+            alert('Please enter some content or upload an image before posting.');
+            return;
+        }
+
+        const userId = generateUserId();
+        const postElement = document.createElement('div');
+        postElement.classList.add('post');
+        
+        postElement.innerHTML = `
+            <div class="post-id">User ID: ${userId}</div>
+            <div class="post-content">${postContent}</div>
+        `;
+        
+        if (postImage) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imgElement = document.createElement('img');
+                imgElement.src = e.target.result;
+                imgElement.classList.add('post-image');
+                postElement.appendChild(imgElement);
+            }
+            reader.readAsDataURL(postImage);
+        }
+
+        postsContainer.prepend(postElement);
+        document.getElementById('postContent').value = '';
+        document.getElementById('postImage').value = '';
+    }
+
+
+
+    
+</script>
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-storage.js"></script>
+
+
+
+<script>
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyB05MjZQ8_wDA0RYx4RAKd-9cOvy7jyBvU",
+        authDomain: "psydo-24.firebaseapp.com",
+        projectId: "psydo-24",
+        storageBucket: "psydo-24.appspot.com",
+        messagingSenderId: "358281925383",
+        appId: "1:358281925383:web:6f7e13a1f6ba614685aba2",
+        measurementId: "G-Q26L22SFZM"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // Get references to the Firestore and Storage services
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+</script>
+<script>
+    const postsContainer = document.getElementById('postsContainer');
+
+    function generateUserId() {
+        const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let userId = '';
+        for (let i = 0; i < 8; i++) {
+            userId += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return userId;
+    }
+
+    async function submitPost() {
+        const postContent = document.getElementById('postContent').value;
+        const postImageInput = document.getElementById('postImage');
+        let postImageSrc = '';
+
+        // Validate content
+        if (postContent.trim() === '' && postImageInput.files.length === 0) {
+            alert('Please enter some content or select an image before posting.');
+            return;
+        }
+
+        const userId = generateUserId();
+
+        // Handle image upload
+        if (postImageInput.files && postImageInput.files[0]) {
+            const file = postImageInput.files[0];
+            const storageRef = storage.ref(`posts/${userId}/${file.name}`);
+            await storageRef.put(file);
+            postImageSrc = await storageRef.getDownloadURL();
+        }
+
+        await db.collection('posts').add({
+            userId,
+            content: postContent,
+            imageUrl: postImageSrc,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        document.getElementById('postContent').value = '';
+        document.getElementById('postImage').value = '';
+
+        loadPosts();
+    }
+
+    function createPostElement(userId, content, imageSrc) {
+        const postElement = document.createElement('div');
+        postElement.classList.add('post');
+
+        let postHTML = `
+            <div class="post-id">User ID: ${userId}</div>
+        `;
+
+        if (imageSrc) {
+            postHTML += `<img src="${imageSrc}" alt="Post Image" class="post-image">`;
+        }
+
+        if (content.trim() !== '') {
+            postHTML += `<div class="post-content">${content}</div>`;
+        }
+
+        postElement.innerHTML = postHTML;
+        postsContainer.prepend(postElement);
+    }
+
+    async function loadPosts() {
+        postsContainer.innerHTML = '';
+        const postsSnapshot = await db.collection('posts').orderBy('timestamp', 'desc').get();
+        postsSnapshot.forEach(doc => {
+            const data = doc.data();
+            createPostElement(data.userId, data.content, data.imageUrl);
+        });
+    }
+
+    window.onload = function() {
+        loadPosts();
+    };
+
+    function search() {
+        alert('Search functionality is not implemented yet.');
+    }
+
+    function profile() {
+        alert('Profile functionality is not implemented yet.');
+    }
+
+    function logout() {
+        alert('Log out functionality is not implemented yet.');
+    }
+</script>
+
+
+</body>
+</html>
